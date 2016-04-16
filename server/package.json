@@ -1,0 +1,22 @@
+{
+  "name": "ludumdare35-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-production": "pm2 start index.js --node-args='--harmony --use-strict'",
+    "dev": "nodemon --harmony ./index.js",
+    "start": "node --harmony ./index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "colyseus": "^0.3.3",
+    "express": "^4.13.4",
+    "dotenv": "^2.0.0",
+    "generate-maze-by-clustering": "0.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.7.1"
+  }
+}

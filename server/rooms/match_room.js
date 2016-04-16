@@ -8,7 +8,10 @@ class MatchRoom extends Room {
   constructor (options) {
     super(options, 1000)
 
-    this.setState({ messages: [], maze: null })
+    this.setState({
+      players: {},
+      messages: []
+    });
     this.maze = null;
 
     console.log("MatchRoom created!", options)
@@ -20,13 +23,16 @@ class MatchRoom extends Room {
   }
 
   onJoin (client) {
+    client.playerIndex = Object.keys(this.state.players).length;
+    this.state.players[ client.id ] = client.playerIndex;
+
     if (this.clients.length === 2) {
-      let maze = generateMaze([20, 10]);
+      let maze = generateMaze([75, 75]);
 
       this.state.maze = maze.toText();
-      this.state.messages.push(`${ client.id } joined.`)
+      this.state.messages.push(`${ client.id } joined.`);
 
-      this.lock()
+      this.lock();
     }
   }
 

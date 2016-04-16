@@ -1,6 +1,7 @@
 import PIXI from 'pixi.js'
 import Tweener from 'tweener'
 import ColyseusInstance from './ColyseusInstance';
+import SceneManager from './core/SceneManager'
 
 window.Tweener = Tweener
 window.tweener = new Tweener();
@@ -8,47 +9,77 @@ window.tweener = new Tweener();
 export default class Application {
 
   constructor () {
-    console.log('Application initialized', Tweener, PIXI, ColyseusInstance);
 
-    var matchRoom = ColyseusInstance.join("match")
-    matchRoom.on('error', function(error) {
-      console.error(error)
+    this.width = 640;
+    this.height = 640;
+
+    this.scale = this.getMaxScale();
+
+    // canvas size
+    this.screenWidth = window.innerWidth
+    this.screenHeight = window.innerHeight
+
+    this.scaledWidth = this.screenWidth / this.scale
+    this.scaledHeight = this.screenHeight / this.scale
+
+    // this.renderer = new PIXI.WebGLRenderer(width, height, {
+    this.renderer = new PIXI.WebGLRenderer(this.screenWidth, this.screenHeight, {
+      // resolution: window.devicePixelRatio,
+      antialias: false
     })
+    this.renderer.backgroundColor = 0x000000;
+    document.body.appendChild(this.renderer.view)
 
-    matchRoom.on('join', function() {
-      console.log(ColyseusInstance.id, "joined", matchRoom.name)
-    })
+    this.stage = new SceneManager(Application.SCALE_RATIO)
+    this.stage.scale.set(this.scale);
 
-    matchRoom.on('leave', function() {
-      console.log(ColyseusInstance.id, "leaved", matchRoom.name)
-    })
+    this.container = new PIXI.Container()
+    this.container.addChild(this.stage)
 
-    matchRoom.on('data', function(data) {
-      console.log(ColyseusInstance.id, "received on", matchRoom.name, data)
-    })
+    window.addEventListener('resize', this.onResize.bind(this))
+    this.onResize()
 
-    matchRoom.on('setup', function(state) {
-      console.log("setup:", state)
+    // if (this.renderer.view.width > window.innerWidth) {
+    //   this.renderer.view.style.position = "absolute"
+    //   this.stage.x = (window.innerWidth - this.renderer.view.width) / 2
+    // }
+  }
 
-      // setup initial messages
-      for (var i=0; i<state.messages.length; i++) {
-        console.log('message:', state.messages[i]);
-      }
-    })
+  onResize (e) {
+    this.scale = this.getMaxScale()
 
-    matchRoom.on('patch', function(patch) {
-      for (var i=0; i<patch.length; i++) {
-        console.log('message:', patch[i]);
-      }
+    this.screenWidth = window.innerWidth
+    this.screenHeight = window.innerHeight
 
-      console.log("patch:", patch)
-    })
+    this.scaledWidth = this.screenWidth / this.scale
+    this.scaledHeight = this.screenHeight / this.scale
 
-    matchRoom.on('update', function(state) {
-      console.log("update:", state)
-    })
+    this.renderer.resize(this.screenWidth, this.screenHeight)
 
-    setInterval(x => ColyseusInstance.send( {message: 'Hey ' + Math.random()} ), 3000);
+    // this.stage.x = this.screenWidth / 2
+    // this.stage.y = this.screenHeight / 2
+    this.stage.scale.set(this.scale)
+
+    Application.WIDTH = this.scaledWidth
+    Application.HEIGHT = this.scaledHeight
+    Application.MARGIN = (this.scaledHeight / 100) * 10
+
+  }
+
+  gotoScene (sceneClass) {
+    this.stage.goTo(sceneClass)
+  }
+
+  getMaxScale () {
+    return Math.min(window.innerWidth / this.width, 1)
+  }
+
+  update (time) {
+    time = time || 0;
+    window.requestAnimationFrame( this.update.bind( this) )
+    tweener.update(time / 1000);
+
+    this.renderer.render(this.container)
   }
 
 }

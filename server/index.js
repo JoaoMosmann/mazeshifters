@@ -17,8 +17,5 @@ app.use(express.static(__dirname + "/../client/public"))
 server.listen(port);
 
 console.log(`Listening on http://localhost:${ port }`)
-//var generateMaze = require('generate-maze-by-clustering');
-//var maze = generateMaze([20, 10]);
-//console.log(maze.toText());
 
 

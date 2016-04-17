@@ -96,7 +96,11 @@ class MatchRoom extends Room {
 
   generateMaze () {
       let maze = generateMaze([5, 5]);
-      this.state.maze = maze.toText().split('\n').map(x => x.split('').map(y => y === ' ' ? 0 : 1));
+      this.state.maze = maze.toText()
+                            .split('\n')
+                            .map(x => x.split('')
+                                       .map(y => y === ' ' ? 0 : 1)
+                            );
   }
 
   generatePlayer (client) {
@@ -106,7 +110,7 @@ class MatchRoom extends Room {
     player.index = Object.keys(this.state.players).length;
     player.dead = false;
     player.id = client.id;
-    player.type = player.index % 2 ? 'PREY' : 'HUNTER';
+    player.type = player.index % 2 ? 'HUNTER' : 'PREY';
     while(this.state.maze[position.y][position.x]) {
       position.x = Math.floor(Math.random() * this.state.maze[0].length);
       position.y = Math.floor(Math.random() * this.state.maze.length);

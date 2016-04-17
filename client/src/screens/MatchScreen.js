@@ -102,15 +102,22 @@ export default class MatchScreen extends PIXI.Container {
         playerInstance = new Player(player);
       }
       this.players[player.id] = playerInstance;
-      this.addChildAt(playerInstance.graphics, 1 + playerInstance.data.position.y);
       this.onPlayerUpdate(player.id);
     }
   }
 
   onPlayerUpdate (id) {
     let player = this.players[id];
+
     player.update(this.state.players[id]);
-    this.addChildAt(player.graphics, 1 + player.data.position.y);
+
+    if (this.maze) {
+        let mazeRow = this.maze.graphics[player.data.position.y]
+          , index = mazeRow.parent.getChildIndex(mazeRow);
+
+        this.addChildAt(player.graphics, index + 1);
+    }
+
   }
 
   renderMaze (data) {

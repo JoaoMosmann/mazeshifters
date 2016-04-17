@@ -1,19 +1,37 @@
 import PIXI from 'pixi.js'
+import lerp from 'lerp';
+import Maze from '../core/Maze';
+import Player from '../core/Player';
 
 import Application from '../Application'
 import ColyseusInstance from '../ColyseusInstance';
+
+import {tileSize} from '../core/Constants';
 
 export default class MatchScreen extends PIXI.Container {
 
   constructor () {
     super();
 
+    this.state = null;
     this.maze = null;
+    this.currentPlayer = null;
+    this.players = {};
     this.room = null;
     this.gameStarted = false;
     this.joinRoom();
 
     this.on('dispose', this.onDispose.bind(this))
+
+    this.onEnterFrame = function () {
+      window.requestAnimationFrame(this.onEnterFrame);
+      if (this.currentPlayer) {
+        this.x = lerp(this.x, (Application.WIDTH / 2) - this.currentPlayer.data.position.x * tileSize, 0.1);
+        this.y = lerp(this.y, (Application.HEIGHT / 2) - this.currentPlayer.data.position.y * tileSize, 0.1);
+      }
+    };
+    this.onEnterFrame = this.onEnterFrame.bind(this);
+    this.onEnterFrame();
   }
 
   joinRoom () {
@@ -25,7 +43,7 @@ export default class MatchScreen extends PIXI.Container {
       : "Waiting for an opponent..."
 
     this.instructionText = new PIXI.Text(text, {
-      font: "62px Verdana",
+      font: "20px Verdana",
       fill: 0xFFFFFF,
       textAlign: 'center'
     });
@@ -38,42 +56,71 @@ export default class MatchScreen extends PIXI.Container {
   }
 
   onUpdate (state, patches) {
+    this.state = state;
     if (!this.gameStarted && Object.keys(state.players).length === 2) {
       this.onJoin();
+      this.renderMaze(state.maze);
+      Object.keys(state.players)
+        .forEach(this.addPlayer.bind(this));
     }
 
     if (patches) {
       for (let i=0; i<patches.length; i++) {
         let patch = patches[i]
-        if (patch.path === '/maze' && patch.op ==='add') {
-          this.renderMaze(patch.value);
+          , path = patch.path.substr(1).split('/');
+
+        if (path[0] === 'players') {
+          if (patch.op === 'add' && path.length === 2 && this.gameStarted) {
+            this.addPlayer(patch.value.id);
+          } else
+          if (patch.op === 'replace') {
+            this.onPlayerUpdate(path[1]);
+          }
+        }
+        else
+        if (path[0] === 'game' && path[1] === 'ended') {
+          if (state.game.ended) {
+            alert(state.game.winner + 'S ARE THE WINNERS.\n\n THE PAGE WILL REFRESH FOR AN NEW GAME');
+            location.reload();
+          }
         }
         console.log('patch: ', patch);
       }
     }
+    console.log("STATE:", state);
   }
 
-  renderMaze (maze) {
-    var graphics = new PIXI.Graphics()
-      , tileSize = 32;
+  addPlayer (playerId) {
+    let player = this.state.players[playerId]
+      , playerInstance;
 
-    // Turn maze string into an 2d array
-    this.maze = maze.split('\n').map(x => x.split('').map(y => y === ' ' ? 0 : 1));
-    this.maze.forEach((row, y) => {
-      row.forEach((cell, x) => {
-        if (cell === 1) {
+    if (!this.players[playerId]) {
+      if (player.id === ColyseusInstance.id) {
+        playerInstance = new Player(player, this.room);
+        this.currentPlayer = playerInstance;
+      } else {
+        playerInstance = new Player(player);
+      }
+      this.players[player.id] = playerInstance;
+      this.addChild(playerInstance.graphics);
+      this.onPlayerUpdate(player.id);
+    }
+  }
 
-          graphics.beginFill(0xFFFF00);
-          graphics.lineStyle(5, 0xFF0000);
-          graphics.drawRect(x*tileSize, y*tileSize, tileSize, tileSize);
+  onPlayerUpdate (id) {
+    let player = this.players[id];
+    player.update(this.state.players[id]);
+  }
 
-        }
-      });
-      this.addChild(graphics);
-    });
+  renderMaze (data) {
+      var MazeInstance = new Maze(data);
+      this.maze = MazeInstance;
+      console.log("MAZE DRAWED");
+      this.addChild(MazeInstance.graphics);
   }
 
   onJoin () {
+    this.gameStarted = true;
     this.removeChild(this.instructionText);
   }
 
@@ -90,6 +137,9 @@ export default class MatchScreen extends PIXI.Container {
     if (this.instructionText) {
       this.instructionText.x = Application.WIDTH / 2
       this.instructionText.y = Application.HEIGHT / 2 - this.instructionText.height / 3.8
+      if (this.state) {
+        this.onUpdate(this.state);
+      }
     }
   }
 

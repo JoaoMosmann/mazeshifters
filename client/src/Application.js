@@ -19,13 +19,13 @@ export default class Application {
     this.screenWidth = window.innerWidth
     this.screenHeight = window.innerHeight
 
-    this.scaledWidth = this.screenWidth / this.scale
-    this.scaledHeight = this.screenHeight / this.scale
+    this.scaledWidth = this.screenWidth * this.scale
+    this.scaledHeight = this.screenHeight * this.scale
 
-    // this.renderer = new PIXI.WebGLRenderer(width, height, {
-    this.renderer = new PIXI.WebGLRenderer(this.screenWidth, this.screenHeight, {
+    this.renderer = new PIXI.WebGLRenderer(this.scaledWidth, this.scaledheight, {
+    //this.renderer = new PIXI.WebGLRenderer(this.screenWidth, this.screenHeight, {
       // resolution: window.devicePixelRatio,
-      antialias: false
+      antialias: true
     })
     this.renderer.backgroundColor = 0x000000;
     document.body.appendChild(this.renderer.view)
@@ -51,19 +51,15 @@ export default class Application {
     this.screenWidth = window.innerWidth
     this.screenHeight = window.innerHeight
 
-    this.scaledWidth = this.screenWidth / this.scale
-    this.scaledHeight = this.screenHeight / this.scale
+    this.scaledWidth = this.width * this.scale
+    this.scaledHeight = this.height * this.scale
 
-    this.renderer.resize(this.screenWidth, this.screenHeight)
-
-    // this.stage.x = this.screenWidth / 2
-    // this.stage.y = this.screenHeight / 2
+    this.renderer.resize(this.scaledWidth, this.scaledHeight)
     this.stage.scale.set(this.scale)
 
-    Application.WIDTH = this.scaledWidth
-    Application.HEIGHT = this.scaledHeight
+    Application.WIDTH = this.width;
+    Application.HEIGHT = this.height;
     Application.MARGIN = (this.scaledHeight / 100) * 10
-
   }
 
   gotoScene (sceneClass) {
@@ -71,7 +67,7 @@ export default class Application {
   }
 
   getMaxScale () {
-    return Math.min(window.innerWidth / this.width, 1)
+    return Math.min(window.innerWidth / this.width, window.innerHeight / this.height)
   }
 
   update (time) {

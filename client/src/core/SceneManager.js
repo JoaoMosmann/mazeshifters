@@ -3,8 +3,8 @@ export default class SceneManager extends PIXI.Container {
   constructor (ratio) {
     super()
 
-    this.scale.x = ratio
-    this.scale.y = ratio
+    //this.scale.x = ratio
+    //this.scale.y = ratio
 
     this.currentScene = null
     this.nextScene = null

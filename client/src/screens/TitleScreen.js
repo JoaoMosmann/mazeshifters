@@ -9,7 +9,7 @@ export default class TitleScreen extends PIXI.Container {
     super()
 
     this.instructionText = new PIXI.Text("Click here to start", {
-      font: "62px Verdana",
+      font: "20px Verdana",
       fill: 0xFFFFFF,
       textAlign: 'center'
     })

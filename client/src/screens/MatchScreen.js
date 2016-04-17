@@ -57,7 +57,7 @@ export default class MatchScreen extends PIXI.Container {
 
   onUpdate (state, patches) {
     this.state = state;
-    if (!this.gameStarted && Object.keys(state.players).length === 2) {
+    if (!this.gameStarted && state.game.started) {
       this.onJoin();
       this.renderMaze(state.maze);
       Object.keys(state.players)
@@ -102,7 +102,7 @@ export default class MatchScreen extends PIXI.Container {
         playerInstance = new Player(player);
       }
       this.players[player.id] = playerInstance;
-      this.addChild(playerInstance.graphics);
+      this.addChildAt(playerInstance.graphics, 1 + playerInstance.data.position.y);
       this.onPlayerUpdate(player.id);
     }
   }
@@ -110,13 +110,18 @@ export default class MatchScreen extends PIXI.Container {
   onPlayerUpdate (id) {
     let player = this.players[id];
     player.update(this.state.players[id]);
+    this.addChildAt(player.graphics, 1 + player.data.position.y);
   }
 
   renderMaze (data) {
-      var MazeInstance = new Maze(data);
+      let MazeInstance = new Maze(data)
+        , texture = PIXI.Texture.fromImage('images/terrain.png')
+        , tilingSprite = new PIXI.extras.TilingSprite(texture, tileSize*data[0].length, tileSize*data.length);
+
       this.maze = MazeInstance;
-      console.log("MAZE DRAWED");
-      this.addChild(MazeInstance.graphics);
+      this.addChild(tilingSprite);
+      MazeInstance.graphics
+                  .forEach(row => this.addChild(row));
   }
 
   onJoin () {

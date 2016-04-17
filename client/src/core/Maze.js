@@ -3,19 +3,21 @@ import {tileSize} from './Constants';
 
 export default class Maze {
   constructor (data) {
-    this.graphics = new PIXI.Graphics();
+    this.graphics = [];
 
     // Turn maze string into an 2d array
     this.cells = data;
-    console.log(data);
     this.cells.forEach((row, y) => {
+      let rowContainer = new PIXI.Container();
       row.forEach((cell, x) => {
         if (cell === 1) {
-          this.graphics.beginFill(0x555555);
-          this.graphics.lineStyle(1, 0x888888);
-          this.graphics.drawRect(x*tileSize, y*tileSize, tileSize, tileSize);
+          let wall = PIXI.Sprite.fromImage('images/wall_block.png');
+          wall.x = x * tileSize;
+          wall.y = (y * tileSize) - 16;
+          rowContainer.addChild(wall);
         }
       });
+      this.graphics.push(rowContainer);
     });
 
   }

@@ -62,6 +62,21 @@ class MatchRoom extends Room {
 
       if (!this.state.maze[newPos.y][newPos.x]) {
         player.position = newPos;
+
+        if (player.type === 'PREY' && player.form === 1) {
+          player.form = 0;
+        } else
+        if (player.type === 'HUNTER') {
+         Object.keys(this.state.players)
+              .map(playerId => this.state.players[playerId])
+              .filter(player2 => player2.type === 'PREY')
+              .filter(prey => prey.form === 1)
+              .filter(p => Math.sqrt((player.position.x-p.position.x)*(player.position.x-p.position.x) + (player.position.y-p.position.y)*(player.position.y-p.position.y)) < 5)
+              .forEach(prey => {
+                prey.form = 0;
+              });
+        }
+
         Object.keys(this.state.players)
               .map(playerId => this.state.players[playerId])
               .filter(player2 => player2.type !== player.type)
@@ -73,7 +88,16 @@ class MatchRoom extends Room {
               });
       }
     }
+    else
+    if (data.type === 'spell') {
+      let player = this.state.players[client.id];
 
+      if (player.type === 'PREY') {
+        if (data.value === 'turn_wall') {
+          player.form = 1;
+        }
+      }
+    }
     console.log("MatchRoom:", client.id, data)
   }
 
@@ -95,7 +119,7 @@ class MatchRoom extends Room {
   }
 
   generateMaze () {
-      let maze = generateMaze([5, 5]);
+      let maze = generateMaze([15, 15]);
       this.state.maze = maze.toText()
                             .split('\n')
                             .map(x => x.split('')
@@ -108,6 +132,7 @@ class MatchRoom extends Room {
       , position = {x: 0, y: 0};
 
     player.index = Object.keys(this.state.players).length;
+    player.form = 0;
     player.dead = false;
     player.id = client.id;
     player.type = player.index % 2 ? 'HUNTER' : 'PREY';

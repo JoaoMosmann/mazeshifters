@@ -6,52 +6,87 @@ var Keycode = require('keycode.js');
 
 export default class Player {
   constructor (data, room) {
-    this.graphics = new PIXI.Graphics();
     this.room = room;
     this.data = data;
+    this.update(data);
     this.isControllable = false;
-    this.displayPosition = {x: this.data.position.x, y: this.data.position.y};
+
+    this.graphics = new PIXI.Container();
+    this.graphics.x = this.data.position.x*tileSize;
+    this.graphics.y = this.data.position.y*tileSize;
+
     if (this.room) {
+      let throttleMs = this.data.type === 'HUNTER' ? 100 : 150;
       this.isControllable = true;
-      this.onKeyUpCallback = Throttle(this.onKeyUp.bind(this), 100);
+      this.onKeyUpCallback = Throttle(this.onKeyUp.bind(this), throttleMs);
       document.addEventListener('keydown', this.onKeyUpCallback);
     }
 
     this.onEnterFrame = function () {
       window.requestAnimationFrame(this.onEnterFrame);
-      this.displayPosition.x = lerp(this.displayPosition.x, this.data.position.x*tileSize, .5);
-      this.displayPosition.y = lerp(this.displayPosition.y, this.data.position.y*tileSize, .5);
-
-      this.graphics.clear();
-      if (!this.data.dead) {
-        this.graphics.beginFill(this.data.type === 'PREY' ? 0x009999 : 0xCC3300);
-        this.graphics.lineStyle(1, this.data.type === 'PREY' ? 0x000099 : 0xFF330);
-        this.graphics.drawRect(this.displayPosition.x, this.displayPosition.y, tileSize, tileSize);
-      }
+      this.graphics.x = lerp(this.graphics.x, this.data.position.x*tileSize, .5);
+      this.graphics.y = lerp(this.graphics.y, this.data.position.y*tileSize, .5);
     };
     this.onEnterFrame = this.onEnterFrame.bind(this);
     this.onEnterFrame();
   }
 
   onKeyUp (e) {
-    let direction = {type:'direction', x: 0, y: 0};
+    let command = {};
+
     if (e.which == Keycode.UP) {
-      direction.y = -1;
+      command.type = 'direction';
+      command.y = -1;
     } else if (e.which == Keycode.DOWN) {
-      direction.y = 1;
+      command.type = 'direction';
+      command.y = 1;
     } else if (e.which == Keycode.LEFT) {
-      direction.x = -1;
+      command.type = 'direction';
+      command.x = -1;
     } else if (e.which == Keycode.RIGHT) {
-      direction.x = 1;
+      command.type = 'direction';
+      command.x = 1;
     }
-    if (direction.x || direction.y) {
-      this.room.send(direction);
+
+    if (e.which === Keycode.KEY_1) {
+      if (this.data.type === 'PREY') {
+        command.type = 'spell';
+        command.value = 'turn_wall';
+      }
+    }
+
+    if (command.type === 'direction' && (command.x || command.y)) {
+      command.x = command.x || 0;
+      command.y = command.y || 0;
+      this.room.send(command);
+    } else
+    if (command.type === 'spell') {
+      this.room.send(command);
     }
   }
 
   update (data) {
     if (data) {
       this.data = data;
+
+      if (this.graphics) {
+        this.graphics.removeChildren();
+        if (this.data.type === 'PREY' && this.data.form === 1) {
+          let wall = PIXI.Sprite.fromImage('images/wall_block.png');
+          wall.x = 0;
+          wall.y = -16;
+          this.graphics.addChild(wall);
+        } else {
+          let drawing = new PIXI.Graphics();
+          if (!this.data.dead) {
+            drawing.beginFill(this.data.type === 'PREY' ? 0x009999 : 0xCC3300);
+            drawing.lineStyle(1, this.data.type === 'PREY' ? 0x000099 : 0xFF330);
+            drawing.drawRect(0, 0, tileSize, tileSize);
+          }
+          this.graphics.addChild(drawing);
+        }
+      }
+
     }
   }
 

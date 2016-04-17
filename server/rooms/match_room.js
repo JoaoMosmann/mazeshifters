@@ -71,7 +71,7 @@ class MatchRoom extends Room {
               .map(playerId => this.state.players[playerId])
               .filter(player2 => player2.type === 'PREY')
               .filter(prey => prey.form === 1)
-              .filter(p => Math.sqrt((player.position.x-p.position.x)*(player.position.x-p.position.x) + (player.position.y-p.position.y)*(player.position.y-p.position.y)) < 5)
+              .filter(p => Math.sqrt((player.position.x-p.position.x)*(player.position.x-p.position.x) + (player.position.y-p.position.y)*(player.position.y-p.position.y)) < 7)
               .forEach(prey => {
                 prey.form = 0;
               });

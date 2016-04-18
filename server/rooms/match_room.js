@@ -25,7 +25,7 @@ class MatchRoom extends Room {
 
   requestJoin(options) {
     // only 2 players are allowed to play
-    return this.clients.length < 2;
+    return this.clients.length < 4;
   }
 
   onJoin (client) {
@@ -60,7 +60,7 @@ class MatchRoom extends Room {
         , curPos = player.position
         , newPos = {x: curPos.x + data.x, y: curPos.y + data.y};
 
-      if (!this.state.maze[newPos.y][newPos.x]) {
+      if (!this.state.maze[newPos.y][newPos.x] || (player.type === 'HUNTER' && player.form === 1)) {
         player.position = newPos;
 
         if (player.type === 'PREY' && player.form === 1) {
@@ -96,6 +96,18 @@ class MatchRoom extends Room {
         if (data.value === 'turn_wall') {
           player.form = 1;
         }
+      } else
+      if (player.type === 'HUNTER') {
+        if (data.value === 'turn_eagle' && !player.cooldowns.turnEagle) {
+          player.form = 1;
+          player.cooldowns.turnEagle = true;
+          setTimeout(x => {
+            player.cooldowns.turnEagle = false;
+          }, 30000);
+          setTimeout(x => {
+            player.form = 0;
+          }, 1500);
+        }
       }
     }
     console.log("MatchRoom:", client.id, data)
@@ -119,7 +131,7 @@ class MatchRoom extends Room {
   }
 
   generateMaze () {
-      let maze = generateMaze([15, 15]);
+      let maze = generateMaze([11, 11]);
       this.state.maze = maze.toText()
                             .split('\n')
                             .map(x => x.split('')
@@ -136,6 +148,10 @@ class MatchRoom extends Room {
     player.dead = false;
     player.id = client.id;
     player.type = player.index % 2 ? 'HUNTER' : 'PREY';
+    player.cooldowns = {
+      turnEagle: false
+    };
+
     while(this.state.maze[position.y][position.x]) {
       position.x = Math.floor(Math.random() * this.state.maze[0].length);
       position.y = Math.floor(Math.random() * this.state.maze.length);

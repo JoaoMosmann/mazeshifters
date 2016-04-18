@@ -9,7 +9,9 @@ export default class Player {
     this.room = room;
     this.data = data;
     this.update(data);
+    this.isRendered = false;
     this.isControllable = false;
+    this.currentForm = 0;
 
     this.graphics = new PIXI.Container();
     this.graphics.x = this.data.position.x*tileSize;
@@ -52,6 +54,10 @@ export default class Player {
       if (this.data.type === 'PREY') {
         command.type = 'spell';
         command.value = 'turn_wall';
+      } else
+      if (this.data.type === 'HUNTER') {
+        command.type = 'spell';
+        command.value = 'turn_eagle';
       }
     }
 
@@ -68,23 +74,40 @@ export default class Player {
   update (data) {
     if (data) {
       this.data = data;
-
-      if (this.graphics) {
+      if ((!this.isRendered || this.data.form !== this.currentForm) && this.graphics) {
+        this.isRendered = true;
         this.graphics.removeChildren();
+
         if (this.data.type === 'PREY' && this.data.form === 1) {
           let wall = PIXI.Sprite.fromImage('images/wall_block.png');
           wall.x = 0;
           wall.y = -16;
           this.graphics.addChild(wall);
+        } else if (this.data.type === 'HUNTER' && this.data.form === 1) {
+          let container = new PIXI.Container();
+          let drawing = new PIXI.Graphics();
+          drawing.beginFill(0xCC3300);
+          drawing.lineStyle(3, 0xFF330);
+          drawing.drawRect(0, 0, tileSize, tileSize);
+          container.addChild(drawing);
+          this.graphics.addChild(container);
+          tweener.add(container).to({ y: -16 }, 200, Tweener.ease.quintOut)
         } else {
+          let container = new PIXI.Container();
           let drawing = new PIXI.Graphics();
           if (!this.data.dead) {
             drawing.beginFill(this.data.type === 'PREY' ? 0x009999 : 0xCC3300);
             drawing.lineStyle(1, this.data.type === 'PREY' ? 0x000099 : 0xFF330);
             drawing.drawRect(0, 0, tileSize, tileSize);
           }
-          this.graphics.addChild(drawing);
+          container.addChild(drawing);
+          this.graphics.addChild(container);
+          if (this.data.type === 'HUNTER' && this.currentForm === 1) {
+            tweener.add(container).from({ y: -16 }, 200, Tweener.ease.quintOut)
+          }
         }
+
+        this.currentForm = this.data.form;
       }
 
     }

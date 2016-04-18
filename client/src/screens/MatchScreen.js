@@ -80,7 +80,7 @@ export default class MatchScreen extends PIXI.Container {
         else
         if (path[0] === 'game' && path[1] === 'ended') {
           if (state.game.ended) {
-            alert(state.game.winner + 'S ARE THE WINNERS.\n\n THE PAGE WILL REFRESH FOR AN NEW GAME');
+            alert(state.game.winner + 'S ARE THE WINNERS.\n\n THE PAGE WILL REFRESH FOR A NEW GAME');
             location.reload();
           }
         }

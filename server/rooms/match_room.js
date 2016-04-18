@@ -100,7 +100,7 @@ class MatchRoom extends Room {
         if (data.value === 'turn_wall') {
           player.form = 1;
         } else
-        if (data.value === 'turn_invisible') {
+        if (data.value === 'turn_invisible' && !player.cooldowns.turnInvisible) {
           player.form = 2;
           player.cooldowns.turnInvisible = true;
           setTimeout(x => {

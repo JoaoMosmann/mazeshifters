@@ -82,7 +82,11 @@ class MatchRoom extends Room {
               .filter(player2 => player2.type !== player.type)
               .forEach(opponent => {
                 if (player.position.x === opponent.position.x && player.position.y === opponent.position.y) {
-                  player.type === 'PREY' ? (player.dead = true) : (opponent.dead = true);
+                  let prey = player.type === 'PREY' ? player : opponent;
+                  let hunter = player.type === 'PREY' ? opponent : player;
+                  if (prey.form !== 2) {
+                    prey.dead = true;
+                  }
                   this.checkPlayers();
                 }
               });
@@ -95,6 +99,16 @@ class MatchRoom extends Room {
       if (player.type === 'PREY') {
         if (data.value === 'turn_wall') {
           player.form = 1;
+        } else
+        if (data.value === 'turn_invisible') {
+          player.form = 2;
+          player.cooldowns.turnInvisible = true;
+          setTimeout(x => {
+            player.cooldowns.turnInvisible = false;
+          }, 25000);
+          setTimeout(x => {
+            player.form = 1;
+          }, 3000);
         }
       } else
       if (player.type === 'HUNTER') {
@@ -149,7 +163,8 @@ class MatchRoom extends Room {
     player.id = client.id;
     player.type = player.index % 2 ? 'HUNTER' : 'PREY';
     player.cooldowns = {
-      turnEagle: false
+      turnEagle: false,
+      turnInvisible: false
     };
 
     while(this.state.maze[position.y][position.x]) {

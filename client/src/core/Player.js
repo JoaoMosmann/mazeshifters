@@ -59,6 +59,12 @@ export default class Player {
         command.type = 'spell';
         command.value = 'turn_eagle';
       }
+    } else
+    if (e.which === Keycode.KEY_2) {
+      if (this.data.type === 'PREY') {
+        command.type = 'spell';
+        command.value = 'turn_invisible';
+      }
     }
 
     if (command.type === 'direction' && (command.x || command.y)) {
@@ -83,6 +89,17 @@ export default class Player {
           wall.x = 0;
           wall.y = -16;
           this.graphics.addChild(wall);
+        } else if (this.data.type === 'PREY' && this.data.form === 2) {
+          if (this.isControllable) {
+            let container = new PIXI.Container();
+            let drawing = new PIXI.Graphics();
+            drawing.beginFill(0x000000);
+            drawing.lineStyle(3, 0xFFFFFF);
+            drawing.drawRect(0, 0, tileSize, tileSize);
+            container.addChild(drawing);
+            this.graphics.addChild(container);
+            tweener.add(container).to({ alpha: .3 }, 200, Tweener.ease.quintOut)
+          }
         } else if (this.data.type === 'HUNTER' && this.data.form === 1) {
           let container = new PIXI.Container();
           let drawing = new PIXI.Graphics();

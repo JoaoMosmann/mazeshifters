@@ -71,7 +71,7 @@ class MatchRoom extends Room {
               .map(playerId => this.state.players[playerId])
               .filter(player2 => player2.type === 'PREY')
               .filter(prey => prey.form === 1)
-              .filter(p => Math.sqrt((player.position.x-p.position.x)*(player.position.x-p.position.x) + (player.position.y-p.position.y)*(player.position.y-p.position.y)) < 7)
+              .filter(p => Math.sqrt((player.position.x-p.position.x)*(player.position.x-p.position.x) + (player.position.y-p.position.y)*(player.position.y-p.position.y)) < 4)
               .forEach(prey => {
                 prey.form = 0;
               });
@@ -108,7 +108,7 @@ class MatchRoom extends Room {
           }, 25000);
           setTimeout(x => {
             player.form = 1;
-          }, 3000);
+          }, 4500);
         }
       } else
       if (player.type === 'HUNTER') {
@@ -145,7 +145,7 @@ class MatchRoom extends Room {
   }
 
   generateMaze () {
-      let maze = generateMaze([11, 11]);
+      let maze = generateMaze([14, 14]);
       this.state.maze = maze.toText()
                             .split('\n')
                             .map(x => x.split('')

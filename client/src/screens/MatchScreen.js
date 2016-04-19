@@ -19,13 +19,14 @@ export default class MatchScreen extends PIXI.Container {
     this.players = {};
     this.room = null;
     this.gameStarted = false;
+    this.lockViewOnPlayer = false;
     this.joinRoom();
 
     this.on('dispose', this.onDispose.bind(this))
 
     this.onEnterFrame = function () {
       window.requestAnimationFrame(this.onEnterFrame);
-      if (this.currentPlayer) {
+      if (this.lockViewOnPlayer && this.currentPlayer) {
         this.x = lerp(this.x, (Application.WIDTH / 2) - this.currentPlayer.data.position.x * tileSize, 0.1);
         this.y = lerp(this.y, (Application.HEIGHT / 2) - this.currentPlayer.data.position.y * tileSize, 0.1);
       }
@@ -40,7 +41,7 @@ export default class MatchScreen extends PIXI.Container {
 
     let text = (ColyseusInstance.readyState === WebSocket.CLOSED)
       ? "Couldn't connect."
-      : "Waiting for an opponent..."
+      : "Waiting for opponents..."
 
     this.instructionText = new PIXI.Text(text, {
       font: "20px Verdana",
@@ -58,10 +59,24 @@ export default class MatchScreen extends PIXI.Container {
   onUpdate (state, patches) {
     this.state = state;
     if (!this.gameStarted && state.game.started) {
-      this.onJoin();
-      this.renderMaze(state.maze);
+      this.gameStarted = true;
+
       Object.keys(state.players)
         .forEach(this.addPlayer.bind(this));
+
+      if (this.currentPlayer.data.type !== 'PREY') {
+        this.instructionText.setText("5 seconds delay for the PREY to hide.");
+        this.onResize();
+      }
+
+      let timeToShow = this.currentPlayer.data.type === 'PREY' ? 0 : 5000;
+      setTimeout(x => {
+        this.lockViewOnPlayer = true;
+        this.removeChild(this.instructionText);
+        this.renderMaze(state.maze);
+        Object.keys(state.players)
+          .forEach(this.onPlayerUpdate.bind(this));
+      }, timeToShow);
     }
 
     if (patches) {
@@ -129,11 +144,6 @@ export default class MatchScreen extends PIXI.Container {
       this.addChild(tilingSprite);
       MazeInstance.graphics
                   .forEach(row => this.addChild(row));
-  }
-
-  onJoin () {
-    this.gameStarted = true;
-    this.removeChild(this.instructionText);
   }
 
   transitionIn () {

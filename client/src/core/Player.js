@@ -22,6 +22,7 @@ export default class Player {
       this.isControllable = true;
       this.onKeyUpCallback = Throttle(this.onKeyUp.bind(this), throttleMs);
       document.addEventListener('keydown', this.onKeyUpCallback);
+      document.addEventListener('keypress', e => e.preventDefault());
     }
 
     this.onEnterFrame = function () {

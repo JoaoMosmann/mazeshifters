@@ -149,8 +149,8 @@ export default class Player {
 
   play3dSound (name, emitterPosition) {
     let receptorPosition = Player.CURRENT.data.position
-      , xDistance = (receptorPosition.x - emitterPosition.x) / 20
-      , yDistance = (receptorPosition.y - emitterPosition.y) / 20;
+      , xDistance = (receptorPosition.x - emitterPosition.x) / -10
+      , yDistance = (receptorPosition.y - emitterPosition.y) / 10;
     App.sound.play(name, x => App.sound.pos3d(xDistance, yDistance, 0, x));
   }
 

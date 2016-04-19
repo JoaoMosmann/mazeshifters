@@ -45,6 +45,8 @@ class MatchRoom extends Room {
           this.disconnect();
         }, 50);
       }, 90*1000);
+    } else
+    if (this.clients.length >= 6) {
       this.lock();
     }
   }
@@ -120,7 +122,7 @@ class MatchRoom extends Room {
           }, 30000);
           setTimeout(x => {
             player.form = 0;
-          }, 1500);
+          }, 2000);
         }
       }
     }

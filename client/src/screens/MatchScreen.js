@@ -71,6 +71,7 @@ export default class MatchScreen extends PIXI.Container {
 
       let timeToShow = this.currentPlayer.data.type === 'PREY' ? 0 : 5000;
       setTimeout(x => {
+        window.focus();
         this.lockViewOnPlayer = true;
         this.removeChild(this.instructionText);
         this.renderMaze(state.maze);

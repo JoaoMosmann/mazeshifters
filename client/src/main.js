@@ -11,3 +11,5 @@ loader.on('complete', () => {
   app.update();
 });
 loader.load();
+
+document.addEventListener('click', x => window.focus());

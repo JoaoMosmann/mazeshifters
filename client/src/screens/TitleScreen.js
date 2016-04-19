@@ -56,6 +56,7 @@ export default class TitleScreen extends PIXI.Container {
   }
 
   startGame () {
+    window.focus();
     this.emit('goto', MatchScreen);
   }
 

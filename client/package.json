@@ -28,6 +28,7 @@
     "babel-preset-es2015": "^6.5.0",
     "clock-timer.js": "^1.1.0",
     "colyseus.js": "^0.2.2",
+    "howler": "^1.1.29",
     "keycode.js": "0.0.1",
     "lerp": "^1.0.3",
     "lodash": "^4.11.1",

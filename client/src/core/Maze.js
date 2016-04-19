@@ -7,6 +7,10 @@ export default class Maze {
 
     // Turn maze string into an 2d array
     this.cells = data;
+
+    Maze.WIDTH = this.cells[0].length;
+    Maze.HEIGHT = this.cells.length;
+
     this.cells.forEach((row, y) => {
       let rowContainer = new PIXI.Container();
       row.forEach((cell, x) => {

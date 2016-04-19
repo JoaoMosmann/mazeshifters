@@ -1,6 +1,7 @@
 import PIXI from 'pixi.js';
 import lerp from 'lerp';
 import {tileSize} from './Constants';
+import Maze from './Maze';
 import Throttle from 'lodash/throttle';
 var Keycode = require('keycode.js');
 
@@ -12,6 +13,7 @@ export default class Player {
     this.isRendered = false;
     this.isControllable = false;
     this.currentForm = 0;
+    this.prevPosition = null;
 
     this.graphics = new PIXI.Container();
     this.graphics.x = this.data.position.x*tileSize;
@@ -92,6 +94,7 @@ export default class Player {
           wall.x = 0;
           wall.y = -16;
           this.graphics.addChild(wall);
+          this.play3dSound('stone', this.data.position);
         } else if (this.data.type === 'PREY' && this.data.form === 2) {
           if (this.isControllable) {
             let container = new PIXI.Container();
@@ -103,6 +106,7 @@ export default class Player {
             this.graphics.addChild(container);
             tweener.add(container).to({ alpha: .3 }, 200, Tweener.ease.quintOut)
           }
+          this.play3dSound('invisible', this.data.position);
         } else if (this.data.type === 'HUNTER' && this.data.form === 1) {
           let container = new PIXI.Container();
           let drawing = new PIXI.Graphics();
@@ -112,6 +116,7 @@ export default class Player {
           container.addChild(drawing);
           this.graphics.addChild(container);
           tweener.add(container).to({ y: -16 }, 200, Tweener.ease.quintOut)
+          this.play3dSound('fly', this.data.position);
         } else {
           let container = new PIXI.Container();
           let drawing = new PIXI.Graphics();
@@ -130,7 +135,23 @@ export default class Player {
         this.currentForm = this.data.form;
       }
 
+      if (this.prevPosition) {
+        if (this.data.position.x !== this.prevPosition.x || this.data.position.y !== this.prevPosition.y) {
+          let walkSound = this.data.type === 'PREY' ? 'walk1' : 'walk2';
+          if (this.data.form !== 2) {
+            this.play3dSound(walkSound, this.data.position);
+          }
+        }
+      }
+      this.prevPosition = Object.assign({}, this.data.position);
     }
+  }
+
+  play3dSound (name, emitterPosition) {
+    let receptorPosition = Player.CURRENT.data.position
+      , xDistance = (receptorPosition.x - emitterPosition.x) / 20
+      , yDistance = (receptorPosition.y - emitterPosition.y) / 20;
+    App.sound.play(name, x => App.sound.pos3d(xDistance, yDistance, 0, x));
   }
 
   onDispose () {

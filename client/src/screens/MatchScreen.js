@@ -113,7 +113,7 @@ export default class MatchScreen extends PIXI.Container {
     if (!this.players[playerId]) {
       if (player.id === ColyseusInstance.id) {
         playerInstance = new Player(player, this.room);
-        this.currentPlayer = playerInstance;
+        Player.CURRENT = this.currentPlayer = playerInstance;
       } else {
         playerInstance = new Player(player);
       }

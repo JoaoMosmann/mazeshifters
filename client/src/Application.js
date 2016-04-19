@@ -2,6 +2,7 @@ import PIXI from 'pixi.js'
 import Tweener from 'tweener'
 import ColyseusInstance from './ColyseusInstance';
 import SceneManager from './core/SceneManager'
+import {Howl} from 'howler';
 
 window.Tweener = Tweener
 window.tweener = new Tweener();
@@ -10,9 +11,12 @@ export default class Application {
 
   constructor () {
 
+    let soundsprite = require('../public/audios/audios.json');
+    this.sound = new Howl(soundsprite);
+    this.sound.volume = 0.2;
+
     this.width = 640;
     this.height = 640;
-
     this.scale = this.getMaxScale();
 
     // canvas size

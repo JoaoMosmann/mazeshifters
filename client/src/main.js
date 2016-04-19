@@ -1,15 +1,13 @@
 import Application from './Application';
 import TitleScreen from './screens/TitleScreen';
+import Resources from './Resources';
 
-var loader = new PIXI.loaders.Loader();
-loader.add('terrain', 'images/terrain.png');
-loader.add('wall', 'images/wall_block.png');
+let App = window.App = new Application();
+Resources.load(onLoad);
 
-loader.on('complete', () => {
-  var app = new Application();
-  app.gotoScene (TitleScreen);
-  app.update();
-});
-loader.load();
+function onLoad () {
+  App.gotoScene (TitleScreen);
+  App.update();
+}
 
 document.addEventListener('click', x => window.focus());

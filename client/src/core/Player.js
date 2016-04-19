@@ -36,6 +36,8 @@ export default class Player {
   onKeyUp (e) {
     let command = {};
 
+    e.preventDefault();
+
     if (e.which == Keycode.UP) {
       command.type = 'direction';
       command.y = -1;

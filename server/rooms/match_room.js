@@ -9,6 +9,9 @@ class MatchRoom extends Room {
 
     super(options, 50);
 
+    this.heartBeatInterval = setInterval(x => this.broadcast({keepalive:true}), 5000);
+    setTimeout(x => clearInterval(this.heartBeatInterval), 90*1000);
+
     this.setState({
       game: {
         started: false,
@@ -38,6 +41,8 @@ class MatchRoom extends Room {
 
     if (this.clients.length === 2) {
       this.state.game.started = true;
+
+      setTimeout(x => clearInterval(this.heartBeatInterval), 90*1000);
       setTimeout(x => {
         this.state.game.winner = 'PREY';
         this.state.game.ended = true;

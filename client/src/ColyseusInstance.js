@@ -1,9 +1,15 @@
 import Colyseus from 'colyseus.js'
 
-let instance = new Colyseus(
-  //"wss://peaceful-lowlands-42461.herokuapp.com"
-  window.location.protocol.replace("http", "ws") + "//" + window.location.hostname + ((window.location.port) ? ':' + window.location.port : '')
-  // window.location.protocol.replace("http", "ws") + "//" + process.env.
-);
+export default class ColyseusInstance {
 
-export {instance as default};
+  constructor () {
+  }
+
+  static init () {
+    let instance = new Colyseus(
+      window.location.protocol.replace("http", "ws") + "//" + window.location.hostname + ((window.location.port) ? ':' + window.location.port : '')
+    );
+    ColyseusInstance.client = instance;
+  }
+
+}

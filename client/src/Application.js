@@ -1,6 +1,5 @@
 import PIXI from 'pixi.js'
 import Tweener from 'tweener'
-import ColyseusInstance from './ColyseusInstance';
 import SceneManager from './core/SceneManager'
 import {Howl} from 'howler';
 

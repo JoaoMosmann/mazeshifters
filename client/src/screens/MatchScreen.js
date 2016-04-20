@@ -13,6 +13,8 @@ export default class MatchScreen extends PIXI.Container {
   constructor () {
     super();
 
+    ColyseusInstance.init();
+
     this.state = null;
     this.maze = null;
     this.currentPlayer = null;
@@ -36,10 +38,10 @@ export default class MatchScreen extends PIXI.Container {
   }
 
   joinRoom () {
-    this.room = ColyseusInstance.join('match');
+    this.room = ColyseusInstance.client.join('match');
     this.room.on('update', this.onUpdate.bind(this));
 
-    let text = (ColyseusInstance.readyState === WebSocket.CLOSED)
+    let text = (ColyseusInstance.client.readyState === WebSocket.CLOSED)
       ? "Couldn't connect."
       : "Waiting for opponents..."
 
@@ -111,7 +113,7 @@ export default class MatchScreen extends PIXI.Container {
       , playerInstance;
 
     if (!this.players[playerId]) {
-      if (player.id === ColyseusInstance.id) {
+      if (player.id === ColyseusInstance.client.id) {
         playerInstance = new Player(player, this.room);
         Player.CURRENT = this.currentPlayer = playerInstance;
       } else {

@@ -39,6 +39,9 @@ export default class MatchScreen extends PIXI.Container {
 
   joinRoom () {
     this.room = ColyseusInstance.client.join('match');
+    this.room.on('error', function() {
+      //console.log(client.id, "couldn't join", roomName)
+    })
     this.room.on('update', this.onUpdate.bind(this));
 
     let text = (ColyseusInstance.client.readyState === WebSocket.CLOSED)
@@ -97,10 +100,12 @@ export default class MatchScreen extends PIXI.Container {
         }
         else
         if (path[0] === 'game' && path[1] === 'ended') {
-          if (state.game.ended) {
+          if (state.game.ended && state.game.winner) {
             alert(state.game.winner + 'S ARE THE WINNERS.\n\n THE PAGE WILL REFRESH FOR A NEW GAME');
-            location.reload();
+          } else {
+            alert('After 90 seconds we couldn\'t find anyone to play with you. Sorry :/ Try again later or invite a friend to play with you');
           }
+          location.reload();
         }
         console.log('patch: ', patch);
       }
